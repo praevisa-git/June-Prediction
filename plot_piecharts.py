@@ -20,6 +20,8 @@ COLORS = {
     "Abstain": "#f39c12",
 }
 
+summary_rows = []
+
 for folder in sorted(os.listdir(BASE_DIR)):
     folder_path = os.path.join(BASE_DIR, folder)
     csv_path = os.path.join(folder_path, "mistral-3.5.csv")
@@ -31,6 +33,20 @@ for folder in sorted(os.listdir(BASE_DIR)):
 
     procedure_id = folder.strip()
     title = proc_lookup.get(procedure_id, "")
+
+    n_for = int(counts.get("For", 0))
+    n_against = int(counts.get("Against", 0))
+    n_abstain = int(counts.get("Abstain", 0))
+    total = n_for + n_against + n_abstain
+    pct_for = round(n_for / total * 100, 1) if total else 0
+    summary_rows.append({
+        "procedure_id": procedure_id,
+        "title": title,
+        "for": n_for,
+        "against": n_against,
+        "abstain": n_abstain,
+        "pct_for": pct_for,
+    })
     chart_title = f"{procedure_id}\n{title}" if title else procedure_id
 
     labels = counts.index.tolist()
@@ -65,4 +81,8 @@ for folder in sorted(os.listdir(BASE_DIR)):
     plt.close(fig)
     print(f"Saved: {out_path}")
 
+summary_df = pd.DataFrame(summary_rows)
+summary_path = os.path.join(BASE_DIR, "predicted_votes_summary.csv")
+summary_df.to_csv(summary_path, index=False)
+print(f"Saved summary: {summary_path}")
 print("Done.")
