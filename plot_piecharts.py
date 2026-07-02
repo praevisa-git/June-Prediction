@@ -33,6 +33,7 @@ for folder in sorted(os.listdir(BASE_DIR)):
 
     procedure_id = folder.strip()
     title = proc_lookup.get(procedure_id, "")
+    chart_title = f"{procedure_id}\n{title}" if title else procedure_id
 
     n_for = int(counts.get("For", 0))
     n_against = int(counts.get("Against", 0))
@@ -47,14 +48,13 @@ for folder in sorted(os.listdir(BASE_DIR)):
         "abstain": n_abstain,
         "pct_for": pct_for,
     })
-    chart_title = f"{procedure_id}\n{title}" if title else procedure_id
 
     labels = counts.index.tolist()
     sizes = counts.values.tolist()
     colors = [COLORS.get(lbl, "#95a5a6") for lbl in labels]
 
     fig, ax = plt.subplots(figsize=(7, 6))
-    wedges, texts, autotexts = ax.pie(
+    _, _, autotexts = ax.pie(
         sizes,
         labels=None,
         colors=colors,
@@ -72,7 +72,6 @@ for folder in sorted(os.listdir(BASE_DIR)):
     ]
     ax.legend(handles=legend_patches, loc="lower center", bbox_to_anchor=(0.5, -0.12),
               ncol=len(labels), fontsize=10)
-
     ax.set_title(chart_title, fontsize=11, fontweight="bold", pad=14, wrap=True)
     fig.tight_layout()
 
